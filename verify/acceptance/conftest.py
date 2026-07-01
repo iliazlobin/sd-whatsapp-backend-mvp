@@ -88,6 +88,11 @@ def create_user(client, username=None, display_name=None):
     """Create a user and return the parsed response body (201)."""
     if username is None:
         username = f"user-{uuid.uuid4().hex[:12]}"
+    else:
+        # Append a unique suffix so a hardcoded test username (e.g. "alice-fr4")
+        # never 409-collides with a prior run on a non-clean DB — keeps the
+        # acceptance suite idempotent without needing a DB-clearing fixture.
+        username = f"{username}-{uuid.uuid4().hex[:8]}"
     if display_name is None:
         display_name = username.capitalize()
     r = client.post(
