@@ -183,7 +183,7 @@ ruff check src/ tests/ && ruff format --check src/ tests/
 │   └── functional/         # In-process ASGITransport integration tests
 ├── verify/
 │   ├── acceptance/         # Black-box HTTP tests (one per functional requirement)
-│   └── manifest.env        # e2e-verify contract
+│   └── manifest.env        # acceptance test configuration
 ├── alembic/                # Database migrations
 ├── docker-compose.yml      # Local stack (app + postgres + redis)
 ├── Dockerfile              # Multi-stage python:3.12-slim

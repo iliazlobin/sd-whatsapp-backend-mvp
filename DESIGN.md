@@ -241,30 +241,4 @@ The functional test suite (`tests/functional/`) validates behavior scenarios fro
 | [CI](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/ci.yml) | push, PR, daily | unit tests + Docker Compose stack + acceptance suite | [![CI](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/ci.yml/badge.svg)](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/ci.yml) |
 | [Functional](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/functional.yml) | push, PR, daily | functional tests (own Postgres service container) | [![Functional](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/functional.yml/badge.svg)](https://github.com/iliazlobin/sd-whatsapp-backend-mvp/actions/workflows/functional.yml) |
 
-The acceptance suite (`verify/acceptance/`) is run by the CI workflow as a black-box e2e check against a Docker Compose stack. The host `e2e-verify` loop re-runs it every 30 minutes against the live system using `verify/manifest.env`.
-
-## Run & Test
-
-```bash
-# Start the stack
-docker compose up -d --build
-
-# Run migrations
-docker compose run --rm app alembic upgrade head
-
-# Verify health
-python -c "import urllib.request; urllib.request.urlopen('http://localhost:8010/healthz')"
-
-# Unit tests (no external services)
-pytest tests/unit/ -v
-
-# Functional tests (requires Postgres)
-DATABASE_URL=postgresql+asyncpg://whatsapp:whatsapp@localhost:5432/whatsapp \
-  pytest tests/functional/ -v
-
-# Acceptance tests (black-box, against running system)
-API_BASE_URL=http://localhost:8000 pytest verify/acceptance/ -v
-
-# Teardown
-docker compose down --volumes
-```
+The acceptance suite (`verify/acceptance/`) runs as a black-box e2e check against a Docker Compose stack in CI.
