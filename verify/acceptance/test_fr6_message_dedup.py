@@ -21,7 +21,9 @@ def test_duplicate_client_msg_id_returns_original(client):
     bob = create_user(client, "bob-fr6")["user_id"]
     chat = create_direct_chat(client, alice, bob)
 
-    client_msg_id = str(uuid.uuid4())  # unique per run — first send is 201 on any DB, second (same id) is 200
+    client_msg_id = str(
+        uuid.uuid4()
+    )  # unique per run — first send is 201 on any DB, second (same id) is 200
 
     # First send → 201
     r1 = client.post(
@@ -61,7 +63,9 @@ def test_duplicate_with_different_content_returns_original(client):
     bob = create_user(client, "bob-fr6-diff")["user_id"]
     chat = create_direct_chat(client, alice, bob)
 
-    client_msg_id = str(uuid.uuid4())  # unique per run — dedup tested by re-sending the same id, not a fixed literal
+    client_msg_id = str(
+        uuid.uuid4()
+    )  # unique per run — dedup tested by re-sending the same id, not a fixed literal
 
     r1 = client.post(
         "/v1/messages",

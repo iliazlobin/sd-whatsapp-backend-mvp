@@ -20,11 +20,11 @@ docker compose up -d --build
 docker compose run --rm -T app alembic upgrade head
 
 # Verify
-python -c "import urllib.request; urllib.request.urlopen('http://localhost:8010/healthz')"
-# → returned a response with body: b'{"status":"ok"}'
+curl -sf http://localhost:8010/healthz
+# → {"status":"ok"}
 ```
 
-The slim runtime image has no `curl` — use Python's `urllib` for the health check.
+The slim runtime image has no `curl` — the compose healthcheck uses Python's `urllib` inside the container. On the host, `curl` works fine.
 
 ## Configuration
 
@@ -34,9 +34,9 @@ Copy `.env.example` to `.env` and adjust:
 |---|---|---|
 | `DATABASE_URL` | `postgresql+asyncpg://whatsapp:whatsapp@db:5432/whatsapp` | PostgreSQL async connection string (compose) |
 | `REDIS_URL` | `redis://redis:6379/0` | Redis connection string (compose) |
-| `APP_PORT` | `8000` | In-container listen port |
+| `APP_PORT` | `8010` | Host port for Docker Compose (container always listens on 8000) |
 
-Override the host port via `APP_PORT`:
+Override the host port:
 
 ```bash
 APP_PORT=8020 docker compose up -d
@@ -61,9 +61,11 @@ The compose healthcheck (inside the container) uses Python's stdlib because the 
 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"
 ```
 
-On the host, check against the published port:
+On the host, check against the published port (default 8010):
 
 ```bash
+curl -sf http://localhost:8010/healthz
+# or
 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8010/healthz')"
 ```
 
