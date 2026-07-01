@@ -1,0 +1,67 @@
+name: CI
+
+"on":
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 13 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Run unit tests
+        run: pytest tests/unit/ -v
+
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      APP_PORT: "8000"
+      API_BASE_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install docker compose
+        run: |
+          sudo mkdir -p /usr/local/lib/docker/cli-plugins
+          sudo curl -sSL "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64" -o /usr/local/lib/docker/cli-plugins/docker-compose
+          sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          docker compose version
+
+      - name: Source manifest and bring up stack
+        run: |
+          set -a
+          source verify/manifest.env
+          set +a
+          eval "$UP"
+
+      - name: Run acceptance tests
+        run: |
+          python -m pip install httpx pytest
+          pytest verify/acceptance/ -v
+
+      - name: Tear down
+        if: always()
+        run: |
+          set -a
+          source verify/manifest.env
+          set +a
+          eval "$DOWN"
